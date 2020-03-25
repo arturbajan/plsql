@@ -1,0 +1,28 @@
+create or replace FUNCTION fx_pesel_to_date(
+	param_pesel IN VARCHAR2
+)RETURN DATE AS
+	d_param DATE;
+BEGIN
+	d_param:=TO_DATE(
+		CASE
+			WHEN regexp_like(param_pesel,'^[0-9]{11}')OR regexp_like(param_pesel,'^[0]{11}')THEN
+				CASE
+					WHEN substr(param_pesel,3,1)NOT IN(
+						2,3
+					)THEN
+						'19'||substr(param_pesel,1,6)
+					WHEN substr(param_pesel,3,1)IN(
+						2
+					)THEN
+						20||substr(regexp_replace(param_pesel,'2','0',1,1),1,6)
+					WHEN substr(param_pesel,3,1)IN(
+						3
+					)THEN
+						20||substr(regexp_replace(param_pesel,'3','1',1,1),1,6)
+					ELSE NULL
+				END
+			ELSE NULL
+		END
+	,'yyyymmdd');
+	RETURN d_param;
+END fx_pesel_to_date;
